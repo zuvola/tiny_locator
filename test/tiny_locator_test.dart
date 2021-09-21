@@ -164,4 +164,20 @@ void main() {
     }
     expect(exception, isNotNull);
   });
+
+  test('named scope', () {
+    locator.push(name: 'myScope');
+    locator.add(() => TestClass());
+    locator.push();
+    locator.add(() => ClassA());
+    locator.push();
+    locator.add(() => ClassB());
+    locator.popUntil('myScope');
+    var ret = locator.contains<ClassA>();
+    expect(ret, false);
+    ret = locator.contains<ClassB>();
+    expect(ret, false);
+    ret = locator.contains<TestClass>();
+    expect(ret, true);
+  });
 }
