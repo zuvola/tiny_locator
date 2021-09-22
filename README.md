@@ -5,10 +5,10 @@
 
 **[English](https://github.com/zuvola/tiny_locator/blob/master/README.md), [日本語](https://github.com/zuvola/tiny_locator/blob/master/README_jp.md)**
 
+Tiny service locator that provides a global access point to services.  
+It can be combined with [tiny_react](https://pub.dartlang.org/packages/tiny_react) to make a tiny state management library in Flutter.
 
-Tiny service locator that provides a global access point to services.
-
-It is a very small library with less than 100 lines (without comments), making it easy for anyone to understand how it works. In addition, it has all the necessary functions.
+It is a very small library with less than 100 lines (without comments), so it is easy for anyone to understand how it works.
 
 
 ## Features
@@ -119,3 +119,74 @@ locator.get<ClassA>();
 locator.get<ClassB>(); // Exception!
 ```
 
+
+## tiny_react
+
+[tiny_react](https://pub.dartlang.org/packages/tiny_react) is a syntax sugar to `ValueNotifier` and `ValueListenableBuilder`.  
+When combined with `tiny_locator`, it becomes Flutter's tiny state management method.
+
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:tiny_locator/tiny_locator.dart';
+import 'package:tiny_react/tiny_react.dart';
+
+class MyController {
+  final num = 0.notif;
+  final list = <int>[].notif;
+
+  void doSomething() {
+    num.value++;
+    if (num.value % 2 == 0) {
+      list
+        ..value.add(num.value)
+        ..notifyListeners();
+    }
+  }
+}
+
+void main() {
+  locator.add(() => MyController());
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: MyPage(),
+    );
+  }
+}
+
+class MyPage extends StatelessWidget {
+  final controller = locator.get<MyController>();
+
+  MyPage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('MyPage')),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            const Text(
+              'You have pushed the button this many times:',
+            ),
+            controller.num.build((val) => Text('$val')),
+            controller.list.build((val) => Text('$val')),
+          ],
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => controller.doSomething(),
+        child: const Icon(Icons.add),
+      ),
+    );
+  }
+}
+```
